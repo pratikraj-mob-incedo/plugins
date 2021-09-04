@@ -184,11 +184,15 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
   /// null. The [package] argument must be non-null when the asset comes from a
   /// package and null otherwise.
   VideoPlayerController.asset(this.dataSource,
-      {this.package, this.closedCaptionFile, this.videoPlayerOptions})
+      {this.package,
+      this.closedCaptionFile,
+      this.videoPlayerOptions,
+      this.size})
       : dataSourceType = DataSourceType.asset,
         formatHint = null,
         httpHeaders = const {},
-        super(VideoPlayerValue(duration: Duration.zero));
+        super(
+            VideoPlayerValue(duration: Duration.zero, size: size ?? Size.zero));
 
   /// Constructs a [VideoPlayerController] playing a video from obtained from
   /// the network.
@@ -205,22 +209,25 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
     this.closedCaptionFile,
     this.videoPlayerOptions,
     this.httpHeaders = const {},
+    this.size,
   })  : dataSourceType = DataSourceType.network,
         package = null,
-        super(VideoPlayerValue(duration: Duration.zero));
+        super(
+            VideoPlayerValue(duration: Duration.zero, size: size ?? Size.zero));
 
   /// Constructs a [VideoPlayerController] playing a video from a file.
   ///
   /// This will load the file from the file-URI given by:
   /// `'file://${file.path}'`.
   VideoPlayerController.file(File file,
-      {this.closedCaptionFile, this.videoPlayerOptions})
+      {this.closedCaptionFile, this.videoPlayerOptions, this.size})
       : dataSource = 'file://${file.path}',
         dataSourceType = DataSourceType.file,
         package = null,
         formatHint = null,
         httpHeaders = const {},
-        super(VideoPlayerValue(duration: Duration.zero));
+        super(
+            VideoPlayerValue(duration: Duration.zero, size: size ?? Size.zero));
 
   /// The URI to the video file. This will be in different formats depending on
   /// the [DataSourceType] of the original video.
@@ -234,6 +241,9 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
   /// **Android only**. Will override the platform's generic file format
   /// detection with whatever is set here.
   final VideoFormat? formatHint;
+
+  /// optional size since thie library is incapable calculating actual size.
+  final Size? size;
 
   /// Describes the type of data source this [VideoPlayerController]
   /// is constructed with.
@@ -319,7 +329,7 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
         case VideoEventType.initialized:
           value = value.copyWith(
             duration: event.duration,
-            size: event.size,
+            size: size ?? event.size,
             isInitialized: event.duration != null,
           );
           initializingCompleter.complete(null);
